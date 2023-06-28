@@ -1,0 +1,186 @@
+---
+title: "saulo_gil_atividade02"
+author: "Saulo Gil"
+date: "2023-06-27"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Atividade 02
+
+Qual a estatística básica dos gols do Brasil nas Copas que nossa seleção disputou? Qual a relação dessas estatísticas com as vitórias e derrotas para a nossa seleção?
+
+```{r echo=FALSE, fig.align="center"}
+url <- "https://lh5.googleusercontent.com/pNajKTYAPOH6Rh1Cs9B_miRLBisApCFjBX55VThsYl3JlH_5PIhrFviXbtveoRWLZWFiWciYR8zXUesDGYljpj0SwJoZ6HvOtzespFnk1vqBkCGzWrK2HtZub35Bs8_tsFZ3QQjaVLIdFw0=s2048"
+
+knitr::include_graphics(url)
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Pacotes
+library(readxl)
+library(tidyverse)
+library(patchwork)
+```
+
+```{r include=FALSE}
+# Lendo e verificando a base
+df <- read_excel("df_atividade2.xlsx")
+```
+
+```{r include=FALSE}
+# Função para pegar a moda.
+getmode <- function(x) {
+   uniqv <- unique(x)
+   uniqv[which.max(tabulate(match(x, uniqv)))]
+}
+```
+
+# Estatística descritiva
+Os valores descritivos considerando todos os jogos do Brasil em copas do mundo são:
+
+- *Média* = `r round(mean(df$gol_brazil),2)`;
+
+- *Desvio Padrão (DP)* = `r round(sd(df$gol_brazil),2)`;
+
+- *Moda* = `r round(getmode(df$gol_brazil),2)`;
+
+- *Mínimo* = `r round(min(df$gol_brazil),2)`;
+
+- *Máximo* = `r round(max(df$gol_brazil),2)`;
+
+Ademais estão descritos abaixo os resultados da análise descritiva dos jogos do Brasil em cada uma das copas do mundo.
+
+```{r echo=FALSE}
+df |>
+  group_by(year) |> 
+  summarise(
+    jogos = n(),
+    total_gols = sum(gol_brazil),
+    media = round(mean(gol_brazil),2),
+    DP = round(sd(gol_brazil),2)
+    ) |>
+  knitr::kable(align = "cccc",
+               caption = "Tabela 2. Análise descritiva dos jogos do Brasil em cada uma das copas do mundo.")
+  
+```
+\n
+
+# Qual a relação dessas estatísticas com as vitórias e derrotas para a nossa seleção?
+
+## Verificando se o total de gols tem relação com o título da copa do mundo
+
+```{r echo=FALSE, out.width="100%"}
+df_titulo <- 
+  df |>
+  group_by(year) |> 
+  summarise(
+    jogos = n(),
+    total_gols = sum(gol_brazil),
+    media = round(mean(gol_brazil),2),
+    DP = round(sd(gol_brazil),2)
+    ) |>
+  mutate(titulo = case_when(year %in% c(1958, 1962, 1970, 1994, 2002) ~ "Venceu",
+                            TRUE ~ "Nao_venceu")
+         )
+# Melhores 10 médias de gols
+melhores_10 <- 
+  df_titulo |> 
+  arrange(desc(total_gols)) |> 
+  mutate(year_2 = as.character(year)) |> 
+  head(10) |>
+  ggplot(aes(fct_reorder(.f = year_2,
+                         .x = total_gols,
+                         .desc = TRUE),
+             total_gols,
+             fill = titulo)) +
+  geom_col() +
+  xlab("Ano") +
+  ylab("Total de gols") +
+  theme_bw() 
+
+melhores_10
+```
+
+\n
+Todos os títulos do estão entre os 10 maiores somatórios de gols em mundiais, indicando que o total de gols é um bom indicador de desempenho em copa do mundo. Porém, como o valor total pode ser facilmente influenciado pelo número total de jogos é importante usar outra métrica que possa considerar o número de jogos. Então, vamos ver a média de gols!!!
+
+## Verificando se a média de gols tem relação com o título da copa do mundo
+
+```{r echo=FALSE, out.width="100%"}
+df_titulo <- 
+  df |>
+  group_by(year) |> 
+  summarise(
+    jogos = n(),
+    total_gols = sum(gol_brazil),
+    media = round(mean(gol_brazil),2),
+    DP = round(sd(gol_brazil),2)
+    ) |>
+  mutate(titulo = case_when(year %in% c(1958, 1962, 1970, 1994, 2002) ~ "Venceu",
+                            TRUE ~ "Nao_venceu")
+         )
+# Melhores 10 médias de gols
+melhores_10 <- 
+  df_titulo |> 
+  arrange(desc(media)) |> 
+  mutate(year_2 = as.character(year)) |> 
+  head(10) |>
+  ggplot(aes(fct_reorder(.f = year_2,
+                         .x = media,
+                         .desc = TRUE),
+             media,
+             fill = titulo)) +
+  geom_col() +
+  xlab("Ano") +
+  ylab("Media de gols") +
+  theme_bw()
+
+melhores_10
+```
+
+\n
+Assim como o valor total de gols, a média de gols também parece ser um bom indicador de desempenho na copa do mundo visto que entre as 10 maiores médias de gols do Brasil em copa do mundo estão nossos 4 títulos mundiais!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
